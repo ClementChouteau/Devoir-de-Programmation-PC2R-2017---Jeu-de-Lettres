@@ -1,8 +1,10 @@
 
 public class Scoring {
 	
-	public Scoring() {
-		// prend un board en paramètre
+	private String grid;
+	
+	public Scoring(String grid) {
+		this.grid = grid;
 	}
 	
 	boolean isValid(String grid, String word) {

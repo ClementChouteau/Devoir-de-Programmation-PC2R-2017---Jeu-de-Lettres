@@ -3,8 +3,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Server {
@@ -35,17 +37,19 @@ public class Server {
 		}
 		
 		
-		ServerSocket listener = new ServerSocket(port); // utiliser hostname ???
+		ServerSocket listener = new ServerSocket(port); //TODO utiliser hostname
 		List<Socket> accepted = new LinkedList<>();
 
-		Dices dices = new Dices();
+		Thread accepter = new Thread(new Accepter(listener, accepted));
 		
-		if (grids.size() < turns) {
+		Dices dices = new Dices();
+		Map<String, Integer> scores = new HashMap<String, Integer>();
+		
+		while (grids.size() < turns) {
 			grids.add(dices.generateGrid());
 		}
 		
 		for (int t = 0; t < turns; t++) {
-			accepted.add(listener.accept()); // ????
 			
 			// Phase de recherche
 			
