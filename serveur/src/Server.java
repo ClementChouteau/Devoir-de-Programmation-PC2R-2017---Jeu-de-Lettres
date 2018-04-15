@@ -45,33 +45,30 @@ public class Server {
 		Dices dices = new Dices();
 		Map<String, Integer> scores = new HashMap<String, Integer>();
 		
+		accepter.start();
+		
 		while (grids.size() < turns) {
 			grids.add(dices.generateGrid());
 		}
 		
 		for (int t = 0; t < turns; t++) {
+			// début du tour
+			//TODO lancer timer 3 à 5 min
 			
 			// Phase de recherche
+			//TODO attendre fin timer
 			
 			// Phase de vérification
-			
 			// Phase de résultat
+			//TODO verrou global de toutes les données de jeu
+			//TODO timer de 10s
+			//TODO envoyer les scores
+			//TODO reset les scores et mots proposés
+			//TODO mettre nouvelle grille, indiquer "nouvelle grille"
+			//TODO attendre fin timer
+			//TODO  enlever verrou global
 		}
 		
 		listener.close();
-		
-		/*
-		• Phase de vérification : Le serveur vérifie que les propositions sont correctes, c’est-à-dire que les trajectoires
-		sont correctes et que le mot proposé existe dans son dictionnaire. S’il y a un même mot proposé par au moins
-		deux joueurs différents, les deux propositions sont considérées comme invalides. Par la suite, il y aura une
-		variante de comptage qui prend en compte le mot proposé en premier. On passe ensuite à la phase de résultat où
-		les scores sont calculés.
-		*/
-		
-		/*
-		• Phase de résultat: Les résultats du tour (score de tous les joueurs) sont diffusés aux participants ainsi que les
-		mots proposés par chacun. Après un délai très court (10s), un nouveau tour commence avec un nouveau tirage
-		de lettres.
-		*/
 	}
 }
