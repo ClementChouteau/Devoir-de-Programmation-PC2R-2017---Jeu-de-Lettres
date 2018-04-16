@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -10,6 +11,8 @@ import java.util.stream.Stream;
 public class Scoring {
 	private final Set<String> dictionnary = new HashSet<String>();
 	private Map<String, String> owner = new HashMap<String, String>();
+	private Map<String, Integer> scores = new HashMap<String, Integer>();
+
 
 	public Scoring(String dictionnaryFile) throws IOException {
 		try (Stream<String> stream = Files.lines(Paths.get(dictionnaryFile))) {
@@ -17,7 +20,7 @@ public class Scoring {
 		}
 	}
 	
-	boolean isValid(String grid, String trajectory) {
+	public boolean isValid(String grid, String trajectory) {
 		if (trajectory.length() < 3)
 			return false;
 		
@@ -55,8 +58,32 @@ public class Scoring {
 		return owner.get(new String(word)) == null;
 	}
 
-	int score(String word) {
-		switch (word.length()) {
+	public void giveWord(String user, String trajectory) {
+		//TODO ATTENTION ON DOIT METTRE LE MOT PAS LA TRAJECTOIRE
+		//TODO PEUT ETRE D'AUTRES SOUCIS COMME CA AUTRE PART
+		owner.put(trajectory, user);
+		
+		//TODO incrémenter score
+	}
+	
+	public String scores() {
+		StringWriter sw = new StringWriter();
+		
+		sw.write(scores.size());
+		for (Map.Entry<String, Integer> entry : scores.entrySet()) {
+			sw.write('*');
+			sw.write(entry.getKey());
+			sw.write('*');
+			sw.write(entry.getValue());
+		}
+		
+		return sw.toString();
+	}
+}
+
+	
+	private int score(String trajectory) {
+		switch (trajectory.length()/2) {
 		case 3:  return 1;
 		case 2:  return 1;
 		case 5:  return 2;
@@ -64,9 +91,5 @@ public class Scoring {
 		case 7:  return 5;
 		default: return 11;
 		}
-	}
-	
-	void put(String player, String word) {
-		owner.put(word, player);
 	}
 }

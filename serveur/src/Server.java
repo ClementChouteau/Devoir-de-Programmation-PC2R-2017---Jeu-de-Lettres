@@ -1,23 +1,24 @@
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
 	
-	private static int port = 2018;
+	private static int port = 0;
 	private static String hostname = null;
 	
-	private static int turns = 1;
-	private static ArrayList<String> grids = new ArrayList<>();
+	private static GameState game;
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
+		int turns = 1;
+		ArrayList<String> givenGrids = new ArrayList<>();
+		
 		// parser les arguments de la ligne de commande
 		for (int i = 0; i < args.length; i++) {
 			
@@ -31,44 +32,41 @@ public class Server {
 			
 			if (args[i].compareToIgnoreCase("-grilles") == 0) {				
 				while (++i < args.length && args[i].charAt(0) != '-') {
-					grids.add(args[i]);
-				}				
+					givenGrids.add(args[i]);
+				}
 			}
+			
+			game = new GameState(givenGrids, turns);
 		}
 		
-		
-		ServerSocket listener = new ServerSocket(port); //TODO utiliser hostname
+		ServerSocket listener = new ServerSocket(port, 0, InetAddress.getByName(hostname));
 		List<Socket> accepted = new LinkedList<>();
 
 		Thread accepter = new Thread(new Accepter(listener, accepted));
-		
-		Dices dices = new Dices();
-		Map<String, Integer> scores = new HashMap<String, Integer>();
-		
+
 		accepter.start();
-		
-		while (grids.size() < turns) {
-			grids.add(dices.generateGrid());
-		}
-		
+
 		for (int t = 0; t < turns; t++) {
 			// début du tour
-			//TODO lancer timer 3 à 5 min
-			
 			// Phase de recherche
-			//TODO attendre fin timer
+			TimeUnit.SECONDS.sleep(3*60);
+
+			//TODO envoyer RFIN/			(S -> C) Expiration du delai imparti a la reflexion.
 			
 			// Phase de vérification
 			// Phase de résultat
-			//TODO verrou global de toutes les données de jeu
-			//TODO timer de 10s
-			//TODO envoyer les scores
-			//TODO reset les scores et mots proposés
-			//TODO mettre nouvelle grille, indiquer "nouvelle grille"
-			//TODO attendre fin timer
-			//TODO  enlever verrou global
+			synchronized (game) {
+				for (Socket client : accepted) {
+					//TODO envoyer les scores
+				}
+				
+				game.nextTurn();
+
+				TimeUnit.SECONDS.sleep(10); //TODO lancer le timer au début du synchronized et attendre le temps restant
+			}
 		}
 		
+		//TODO stopper le accepter ???
 		listener.close();
 	}
 }

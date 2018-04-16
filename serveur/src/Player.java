@@ -13,10 +13,9 @@ public class Player implements Runnable {
 	
 	private String user;
 	
-	private Map<String, Integer> scores;
-	private String grid;
+	private GameState game;
 	
-	Player(String grid, Map<String, Integer> scores, Socket socket) {
+	Player(GameState game, Socket socket) {
 		this.socket = socket;
 		try {
 			this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -24,8 +23,7 @@ public class Player implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.scores = scores;
-		this.grid = grid; 
+		this.game = game;
 	}
 
 	@Override
@@ -37,11 +35,23 @@ public class Player implements Runnable {
 				
 				if (args.length >= 2 && args[0].equals("CONNEXION")) {
 					user = args[1];
-					scores.put(user, 0);
-					
-					out.print("BIENVENUE/" + grid + "/" + "SCORE ICI"  + "/n"); //TODO écrire le score
+					//TODO ajouter un joueur
+					out.print("BIENVENUE/" + game.turnGrid() + "/" + game.scores()  + "/n");
 					out.flush();
 				}
+
+				if (args.length >= 2 && args[0].equals("SORT")) {
+					//TODO envoyer DECONNEXION à tous les utilisateurs sauf celui ci
+					socket.close();
+				}
+
+				if (args.length >= 3 && args[0].equals("TROUVE")) {
+					//String mot = args[2]; //TODO inutile ???
+					String trajectoire = args[2];
+					game.giveWord(line, trajectory)
+				}
+				
+				(C -> S) Annonce d’un mot et de sa trajectoire par un joueur.
 				
 				//TODO gérer les autres messages que l'on peut recevoir
 				
