@@ -47,22 +47,35 @@ public class Server {
 		accepter.start();
 
 		for (int t = 0; t < turns; t++) {
+			//TODO SESSION/ envoyer le message de début de tour
+			//(S -> C) Début d’une session.
+			//ATTENTION : doit être fait quand une nouvelle grille est en place et dès qu'un joeuur se connecte
+			//DONC : On a besoin d'un association user -> bool qui dit si le joueur à sa grille à jour
+			// mise à false au début ou lors d'une connexion, et remis à false quand il y a une nouvelle grille
+			
 			// début du tour
 			// Phase de recherche
 			TimeUnit.SECONDS.sleep(3*60);
 
 			//TODO envoyer RFIN/			(S -> C) Expiration du delai imparti a la reflexion.
+
 			
 			// Phase de vérification
 			// Phase de résultat
 			synchronized (game) {
 				for (Socket client : accepted) {
+					//TODO BILANMOTS/motsproposes/scores/
+					//(S -> C) Bilan du tour,ensemble des mots proposés et validés associés à leur client,
+					//scores de tous les joueurs.					
+					
 					//TODO envoyer les scores
-				}
+					//VAINQUEUR/bilan/
+					//(S -> C) Fin de la session courante, scores finaux de la session.
+					}
 				
 				game.nextTurn();
 
-				TimeUnit.SECONDS.sleep(10); //TODO lancer le timer au début du synchronized et attendre le temps restant
+				TimeUnit.SECONDS.sleep(10); //TODO lancer plutôt le timer au début du synchronized et attendre le temps restant ici
 			}
 		}
 		

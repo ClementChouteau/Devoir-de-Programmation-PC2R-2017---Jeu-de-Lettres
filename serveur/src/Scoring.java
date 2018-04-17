@@ -20,12 +20,13 @@ public class Scoring {
 		}
 	}
 	
-	public boolean isValid(String grid, String trajectory) {
+	// retourne null si le mot et valide, et la raison sinon
+	public String isValid(String grid, String trajectory) {
 		if (trajectory.length() < 3)
-			return false;
+			return "too short";
 		
 		if (trajectory.length()%2 != 0)
-			return false;
+			return "not a trajectory";
 		
 		char[] word = new char[trajectory.length()/2];
 		for (int i = 0; 2*i+1 < trajectory.length(); i++) {
@@ -36,7 +37,7 @@ public class Scoring {
 			case 'B': y = 1; break;
 			case 'C': y = 2; break;
 			case 'D': y = 3; break;
-			default: return false;			
+			default: return "not a trajectory";
 			}
 
 			int x = 0;
@@ -45,25 +46,30 @@ public class Scoring {
 			case '2': x = 1; break;
 			case '3': x = 2; break;
 			case '4': x = 3; break;
-			default: return false;			
+			default: return "not a trajectory";
 			}
 
 			
-			word[i] = grid.charAt(4*y + x); //TODO créer une classe Grid permettant l'accès selon une position (char, char)
+			word[i] = grid.charAt(4*y + x); //TODO créer une classe Grid permettant l'accès selon une position (char, char), et permettnat la conversion trajectoire -> mot
 		}
 		
 		if (!dictionnary.contains(new String(word)))
-			return false;
+			return "not in dictionnary";
 		
-		return owner.get(new String(word)) == null;
+		if (owner.get(new String(word)) != null)
+			return "already used";
+			
+		return null;
 	}
 
+	// doit être appelé après isValid()
 	public void giveWord(String user, String trajectory) {
 		//TODO ATTENTION ON DOIT METTRE LE MOT PAS LA TRAJECTOIRE
 		//TODO PEUT ETRE D'AUTRES SOUCIS COMME CA AUTRE PART
 		owner.put(trajectory, user);
-		
-		//TODO incrémenter score
+
+		Integer prev = scores.get(user);
+		scores.put(user, ((prev==null) ? 0 : prev) + score(trajectory));
 	}
 	
 	public String scores() {
@@ -79,8 +85,6 @@ public class Scoring {
 		
 		return sw.toString();
 	}
-}
-
 	
 	private int score(String trajectory) {
 		switch (trajectory.length()/2) {
@@ -91,5 +95,9 @@ public class Scoring {
 		case 7:  return 5;
 		default: return 11;
 		}
+	}
+	
+	void resetGivenWords() {
+		owner.clear();
 	}
 }
