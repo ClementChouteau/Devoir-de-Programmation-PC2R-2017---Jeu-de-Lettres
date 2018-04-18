@@ -20,6 +20,11 @@ public class Scoring {
 		}
 	}
 	
+	//TODO ATTENTION IL FAUT PRENDRE EN COMPTE CETTE REMARQUE
+//	Une lettre
+//	de la grille ne peut être utilisée qu’une seule fois dans la construction d’un mot.
+// DONC ajouter un tableau de bool qui indique si la lettre est utilisée ou non
+	
 	// retourne null si le mot et valide, et la raison sinon
 	public String isValid(String grid, String trajectory) {
 		if (trajectory.length() < 3)
