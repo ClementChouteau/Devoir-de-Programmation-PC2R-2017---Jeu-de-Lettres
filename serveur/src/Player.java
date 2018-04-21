@@ -3,16 +3,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Map;
+
 
 public class Player implements Runnable {
+	public String user;
+	public final Socket socket;
+	public PrintWriter out;
 	
-	private final Socket socket;
 	private BufferedReader in;
-	private PrintWriter out;
-	
-	private String user;
-	
+		
 	private GameState game;
 	
 	Player(GameState game, Socket socket) {
@@ -47,16 +46,19 @@ public class Player implements Runnable {
 				// (C -> S) Déconnexion de ’user’.
 				if (args.length >= 2 && args[0].equals("SORT")) {
 					//TODO envoyer DECONNEXION à tous les utilisateurs sauf celui ci
-					socket.close();
+					// dire à accepter de me supprimer
 				}
 
 				// (C -> S) Annonce d’un mot et de sa trajectoire par un joueur.
 				if (args.length >= 3 && args[0].equals("TROUVE")) {
-					String word = args[2]; //TODO vérifier que le mot correspond à la trajectorire
+					String word = args[2];
 					String trajectory = args[2];
-
-					String reason = game.giveWord(user, trajectory); //TODO passer mot ou bien trajctory ??
 					
+					String reason = game.giveWord(user, trajectory);
+					
+					if(!word.equals(game.turnGrid().wordOfTrajectory(trajectory)))
+							reason = "word doesn't match trajectory";
+												
 					if (reason == null)
 						out.print("MVALIDE/" + word + "/\n");
 					else

@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -9,10 +8,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Server {
-	
+
 	private static int port = 0;
 	private static String hostname = null;
-	
 	private static GameState game;
 
 	public static void main(String[] args) throws UnknownHostException, IOException {
@@ -40,30 +38,30 @@ public class Server {
 		}
 		
 		ServerSocket listener = new ServerSocket(port, 0, InetAddress.getByName(hostname));
-		List<Socket> accepted = new LinkedList<>();
+		List<Player> accepted = new LinkedList<>();
+		Accepter accepter = new Accepter(listener, accepted, game);
+		Thread accepter_thread = new Thread(accepter);
 
-		Thread accepter = new Thread(new Accepter(listener, accepted));
-
-		accepter.start();
+		accepter_thread.start();
 
 		for (int t = 0; t < turns; t++) {
-			//TODO SESSION/ envoyer le message de début de tour
-			//(S -> C) Début d’une session.
-			//ATTENTION : doit être fait quand une nouvelle grille est en place et dès qu'un joeuur se connecte
-			//DONC : On a besoin d'un association user -> bool qui dit si le joueur à sa grille à jour
-			// mise à false au début ou lors d'une connexion, et remis à false quand il y a une nouvelle grille
-			
+			accepter.broadcast("SESSION/");
 			// début du tour
+			accepter.broadcast("TOUR/" + game.turnGrid() + "/");
 			// Phase de recherche
 			TimeUnit.SECONDS.sleep(3*60);
 
-			//TODO envoyer RFIN/			(S -> C) Expiration du delai imparti a la reflexion.
-
+			accepter.broadcast("RFIN/");
 			
 			// Phase de vérification
 			// Phase de résultat
 			synchronized (game) {
-				for (Socket client : accepted) {
+				
+				
+				
+				
+				for (Player player : accepted) {
+					
 					//TODO BILANMOTS/motsproposes/scores/
 					//(S -> C) Bilan du tour,ensemble des mots proposés et validés associés à leur client,
 					//scores de tous les joueurs.					
@@ -71,7 +69,7 @@ public class Server {
 					//TODO envoyer les scores
 					//VAINQUEUR/bilan/
 					//(S -> C) Fin de la session courante, scores finaux de la session.
-					}
+				}
 				
 				game.nextTurn();
 
@@ -81,5 +79,5 @@ public class Server {
 		
 		//TODO stopper le accepter ???
 		listener.close();
-	}
+	}	
 }

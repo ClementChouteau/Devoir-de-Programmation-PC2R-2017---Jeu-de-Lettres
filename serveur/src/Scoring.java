@@ -12,7 +12,7 @@ public class Scoring {
 	private final Set<String> dictionnary = new HashSet<String>();
 	private Map<String, String> owner = new HashMap<String, String>();
 	private Map<String, Integer> scores = new HashMap<String, Integer>();
-
+	private Map<String, Integer> prevScores = new HashMap<String, Integer>();
 
 	public Scoring(String dictionnaryFile) throws IOException {
 		try (Stream<String> stream = Files.lines(Paths.get(dictionnaryFile))) {
@@ -26,55 +26,42 @@ public class Scoring {
 // DONC ajouter un tableau de bool qui indique si la lettre est utilisée ou non
 	
 	// retourne null si le mot et valide, et la raison sinon
-	public String isValid(String grid, String trajectory) {
-		if (trajectory.length() < 3)
-			return "too short";
+	private String isValid(Grid grid, String trajectory) {
+		String word = grid.wordOfTrajectory (trajectory);
 		
-		if (trajectory.length()%2 != 0)
+		if (word == null)
 			return "not a trajectory";
 		
-		char[] word = new char[trajectory.length()/2];
-		for (int i = 0; 2*i+1 < trajectory.length(); i++) {
-
-			int y = 0;
-			switch (trajectory.charAt(2*i)) {
-			case 'A': y = 0; break;
-			case 'B': y = 1; break;
-			case 'C': y = 2; break;
-			case 'D': y = 3; break;
-			default: return "not a trajectory";
-			}
-
-			int x = 0;
-			switch (trajectory.charAt(2*i+1)) {
-			case '1': x = 0; break;
-			case '2': x = 1; break;
-			case '3': x = 2; break;
-			case '4': x = 3; break;
-			default: return "not a trajectory";
-			}
-
-			
-			word[i] = grid.charAt(4*y + x); //TODO créer une classe Grid permettant l'accès selon une position (char, char), et permettnat la conversion trajectoire -> mot
-		}
+		if (word.length() < 3)
+			return "too short";
 		
-		if (!dictionnary.contains(new String(word)))
+		if (!dictionnary.contains(word))
 			return "not in dictionnary";
-		
-		if (owner.get(new String(word)) != null)
-			return "already used";
-			
+					
 		return null;
 	}
 
 	// doit être appelé après isValid()
-	public void giveWord(String user, String trajectory) {
-		//TODO ATTENTION ON DOIT METTRE LE MOT PAS LA TRAJECTOIRE
-		//TODO PEUT ETRE D'AUTRES SOUCIS COMME CA AUTRE PART
+	public String giveWord(Grid grid, String user, String trajectory) {
+		String reason = isValid(grid, trajectory);
+		if (reason != null)
+			return reason;
+		
+		if (owner.get(trajectory) != null) {
+			// le précédent  utilisateur perd les points de ce mot
+			if(! owner.get(trajectory).equals("")) {
+				 Integer ownerScore = scores.get(owner.get(trajectory));
+				 scores.put(owner.get(trajectory), ownerScore - score (trajectory));
+				 owner.put(trajectory, "");
+			}
+			return "already used";
+		}
+
 		owner.put(trajectory, user);
 
 		Integer prev = scores.get(user);
 		scores.put(user, ((prev==null) ? 0 : prev) + score(trajectory));
+		return null;
 	}
 	
 	public String scores() {
@@ -91,6 +78,23 @@ public class Scoring {
 		return sw.toString();
 	}
 	
+	public String turnScore() {
+		StringWriter sw = new StringWriter();
+		
+		sw.write(scores.size());
+		for (Map.Entry<String, Integer> entry : scores.entrySet()) {
+			sw.write('*');
+			sw.write(entry.getKey());
+			sw.write('*');
+			
+			Integer prev = prevScores.get(entry.getKey());
+			sw.write((prev != null) ? (prev - entry.getValue()) : entry.getValue());
+		}
+		
+		return sw.toString();
+		
+	}
+	
 	private int score(String trajectory) {
 		switch (trajectory.length()/2) {
 		case 3:  return 1;
@@ -105,4 +109,10 @@ public class Scoring {
 	void resetGivenWords() {
 		owner.clear();
 	}
+	
+	public void nextTurn () {
+		prevScores = new HashMap<>(scores); //TODO attention cela doit etre une copie profonde
+	}
+	
+	
 }
