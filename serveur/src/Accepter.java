@@ -4,17 +4,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 public class Accepter implements Runnable {
 
 	private ServerSocket listener;
 	private List<Player> accepted;
-	private GameState game;
+	private BlockingQueue<Job> jobs;
 
-	Accepter(ServerSocket listener, List<Player> accepted, GameState game) {
+	Accepter(ServerSocket listener, List<Player> accepted, BlockingQueue<Job> jobs) {
 		this.listener = listener;
 		this.accepted = accepted;
-		this.game = game;
+		this.jobs = jobs;
 	}
 	
 	@Override
@@ -23,38 +24,11 @@ public class Accepter implements Runnable {
 			try {
 				Socket socket = listener.accept();
 				
-				synchronized (accepted) {
-					accepted.add(new Player(game, socket));
+				synchronized (accepted) { //TODO vérifier les autres accès à accepted
+					accepted.add(new Player(socket, jobs));
 				}
 			} catch (IOException e) {
 			}
-		}
-	}
-	
-	public void broadcast(String msg) {
-		ArrayList<String> disconnected = new ArrayList<>();
-		
-		synchronized (accepted) {
-			for (Player player : accepted) {
-				try {
-					PrintWriter out = player.out;
-					out.println(msg);
-					out.flush();
-				} catch (Exception e) {
-					disconnected.add(player.user);
-					//TODO arrêter le thread player
-					accepted.remove(player);
-				}
-			}
-		}
-		if (!disconnected.isEmpty()) {
-			disconnect(disconnected);
-		}
-	}
-	
-	public void disconnect(ArrayList<String> disconnected) {
-		for (String user : disconnected) {
-			broadcast("DECONNEXION/" + user + "/");
 		}
 	}
 }

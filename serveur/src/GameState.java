@@ -8,7 +8,7 @@ public class GameState {
 	private int turn = 0;
 	private ArrayList<Grid> grids = new ArrayList<>();
 	private Scoring scoring;
-	private Map<String, Boolean> sync = new HashMap<String, Boolean>();
+	private Map<String, Boolean> sync = new HashMap<String, Boolean>(); //TODO c quoi ce truc ?
 	//TODO il manque des verrous pour les accès concurents ??
 	
 	public GameState(ArrayList<String> givenGrids, int turns) throws IOException {
@@ -52,8 +52,12 @@ public class GameState {
 	public String giveWord(String user, String trajectory) {
 		return scoring.giveWord(turnGrid(), user, trajectory);
 	}
-		
+
 	public String scores() {
 		return scoring.scores();
+	}
+	
+	public String turnScores() {
+		return scoring.turnScores();
 	}
 }

@@ -5,14 +5,22 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public class Server {
 
-	private static int port = 0;
+	private static int port = 2018;
 	private static String hostname = null;
 	private static GameState game;
 
+	// 1 thread qui accepte les connexions
+	// 1 thread main qui gère les timers ??
+	// n threads pour les clients (pool de thread !!) qui récupère les entrées et fais qq sorties faciles
+	// 1 thread qui récupère les requêtes des thread clients et fais les envois (notamment les brodcast)
+	
+	
 	public static void main(String[] args) throws UnknownHostException, IOException {
 		int turns = 1;
 		ArrayList<String> givenGrids = new ArrayList<>();
@@ -34,50 +42,53 @@ public class Server {
 				}
 			}
 			
+			//TODO récupérer en options des timers pour le temps de recherche / temps bilan du tour
+			
+			//TODO ajouter option -immediat pour les mots en double interdits
+			
 			game = new GameState(givenGrids, turns);
 		}
 		
-		ServerSocket listener = new ServerSocket(port, 0, InetAddress.getByName(hostname));
+		ServerSocket listener = new ServerSocket(port, 0, InetAddress.getByName(hostname)); //TODO vérifier hostname
 		List<Player> accepted = new LinkedList<>();
-		Accepter accepter = new Accepter(listener, accepted, game);
-		Thread accepter_thread = new Thread(accepter);
+		BlockingQueue<Job> jobs = new LinkedBlockingQueue<Job>();
+		Accepter accepter = new Accepter(listener, accepted, jobs);
+		Thread accepter_thread = new Thread(accepter);		
+		Thread worker_thread = new Thread(new Worker(game, accepted, jobs));
 
+		//TODO si port==0 alors afficher le port choisi
+		
+		//TODO si un paramètre par défaut est utilisé alors l'afficher
+		
 		accepter_thread.start();
 
 		for (int t = 0; t < turns; t++) {
-			accepter.broadcast("SESSION/");
+			jobs.put(new Job(Job.JobType.SESSION, new String[0]));
+			
 			// début du tour
-			accepter.broadcast("TOUR/" + game.turnGrid() + "/");
+			jobs.put(new Job(Job.JobType.TOUR, new String[0]));
+			
 			// Phase de recherche
 			TimeUnit.SECONDS.sleep(3*60);
 
-			accepter.broadcast("RFIN/");
+			jobs.put(new Job(Job.JobType.RFIN, new String[0]));
+			
 			
 			// Phase de vérification
 			// Phase de résultat
 			synchronized (game) {
-				
-				
-				
-				
-				for (Player player : accepted) {
-					
-					//TODO BILANMOTS/motsproposes/scores/
-					//(S -> C) Bilan du tour,ensemble des mots proposés et validés associés à leur client,
-					//scores de tous les joueurs.					
-					
-					//TODO envoyer les scores
-					//VAINQUEUR/bilan/
-					//(S -> C) Fin de la session courante, scores finaux de la session.
-				}
+				jobs.put(new Job(Job.JobType.BILANMOTS, new String[0]));
 				
 				game.nextTurn();
 
-				TimeUnit.SECONDS.sleep(10); //TODO lancer plutôt le timer au début du synchronized et attendre le temps restant ici
+				TimeUnit.SECONDS.sleep(10);
 			}
 		}
+
+		jobs.put(new Job(Job.JobType.VAINQUEUR, new String[0]));
+
 		
-		//TODO stopper le accepter ???
+		//TODO stopper les threads proprement
 		listener.close();
 	}	
 }

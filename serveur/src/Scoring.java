@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class Scoring {
-	private final Set<String> dictionnary = new HashSet<String>();
-	private Map<String, String> owner = new HashMap<String, String>();
+	private final Set<String> dictionnary = new HashSet<String>(); //TODO attention aux majuscules !
+	private Map<String, String> owner = new HashMap<String, String>(); //TODO récupérer les mots pour chaque joueur et construire le résultat du tour
 	private Map<String, Integer> scores = new HashMap<String, Integer>();
 	private Map<String, Integer> prevScores = new HashMap<String, Integer>();
 
@@ -37,7 +37,7 @@ public class Scoring {
 		
 		if (!dictionnary.contains(word))
 			return "not in dictionnary";
-					
+
 		return null;
 	}
 
@@ -63,10 +63,10 @@ public class Scoring {
 		scores.put(user, ((prev==null) ? 0 : prev) + score(trajectory));
 		return null;
 	}
-	
+
 	public String scores() {
 		StringWriter sw = new StringWriter();
-		
+
 		sw.write(scores.size());
 		for (Map.Entry<String, Integer> entry : scores.entrySet()) {
 			sw.write('*');
@@ -74,12 +74,14 @@ public class Scoring {
 			sw.write('*');
 			sw.write(entry.getValue());
 		}
-		
+
 		return sw.toString();
 	}
-	
-	public String turnScore() {
+
+	public String turnScores() {
 		StringWriter sw = new StringWriter();
+		
+		//TODO ajouter n (numéro du tour) au début de la réponse
 		
 		sw.write(scores.size());
 		for (Map.Entry<String, Integer> entry : scores.entrySet()) {
