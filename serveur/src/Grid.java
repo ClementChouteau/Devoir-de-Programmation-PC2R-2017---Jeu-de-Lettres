@@ -10,7 +10,7 @@ public class Grid {
 		isUsed = new ArrayList<Boolean>(Collections.nCopies(grid.length(), false));
 	}
 
-	private ArrayList<Integer> trajectoryOfString(String trajectory) {
+	public static ArrayList<Integer> trajectoryOfString(String trajectory) {
 		ArrayList<Integer> t = new ArrayList<>();
 		for (int i = 0; 2*i+1 < trajectory.length(); i+=2) {
 
@@ -64,6 +64,12 @@ public class Grid {
 		return true;
 	}
 	
+	public boolean isUsedLetter (ArrayList<Integer> t) {
+		for (Integer i : t)
+			if (isUsed.get(i))
+				return false;		
+		return true;
+	}
 	
 	public String wordOfTrajectory  (String trajectory) {
 
@@ -88,4 +94,6 @@ public class Grid {
 		for (Integer i : t)
 			isUsed.set(i, true);
 	}
+	
+	
 }

@@ -5,9 +5,10 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Server {
 
@@ -17,7 +18,7 @@ public class Server {
 	private static int turnTime = 3*60;
 	private static int bilanTime = 10;
 	
-	public static void main(String[] args) throws UnknownHostException, IOException {
+	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException {
 		int turns = 1;
 		ArrayList<String> givenGrids = new ArrayList<>();
 		boolean immediat = false;
@@ -27,6 +28,7 @@ public class Server {
 			
 			if (args[i].compareToIgnoreCase("-port") == 0 && i+1 < args.length)
 				port = Integer.parseInt(args[++i]);
+			
 			if (args[i].compareToIgnoreCase("-hostname") == 0 && i+1 < args.length)
 				hostname = args[++i];
 
@@ -51,10 +53,11 @@ public class Server {
 			game = new GameState(givenGrids, turns, immediat);
 		}
 		
-		ServerSocket listener = new ServerSocket(port, 0, InetAddress.getByName(hostname)); //TODO vérifier hostname
+		ServerSocket listener = new ServerSocket(port, 0, InetAddress.getByName(hostname));
 		List<Player> accepted = new LinkedList<>();
-		BlockingQueue<Job> jobs = new LinkedBlockingQueue<Job>();
-		Accepter accepter = new Accepter(listener, accepted, jobs);
+		BlockingDeque<Job> jobs = new LinkedBlockingDeque<Job>();
+		AtomicBoolean TROUVE_allowed = new AtomicBoolean(false);
+		Accepter accepter = new Accepter(listener, accepted, jobs, TROUVE_allowed);
 		Thread accepter_thread = new Thread(accepter);		
 		Thread worker_thread = new Thread(new Worker(game, accepted, jobs));
 
@@ -73,39 +76,35 @@ public class Server {
 			System.out.println("Turn time default value: 3 min");
 		if (bilanTime == 10)
 			System.out.println("Bilan time default value: 10 s");
-				
+
 		accepter_thread.start();
 
-		for (int t = 0; t < turns; t++) {
-			jobs.put(new Job(Job.JobType.SESSION, new String[0]));
-			
+		jobs.put(new Job(Job.JobType.SESSION, new String[0]));
+		
+		for (int t = 0; t < turns; t++) {			
 			// début du tour
-			jobs.put(new Job(Job.JobType.TOUR, new String[0]));
+			synchronized (jobs) {
+				jobs.put(new Job(Job.JobType.TOUR, new String[0]));
+				TROUVE_allowed.set(true);
+			}
 			
 			// Phase de recherche
 			TimeUnit.SECONDS.sleep(turnTime);
 
-			jobs.put(new Job(Job.JobType.RFIN, new String[0]));
-			
 			// Phase de vérification et de résultat
-			synchronized (game) {
-				//TODO attention à ces 2 lignes !!!!
-				//TODO mettre un job changement de tour ????
-				jobs.put(new Job(Job.JobType.BILANMOTS, new String[0]));				
-				game.nextTurn();
-
-				TimeUnit.SECONDS.sleep(bilanTime);
+			synchronized (jobs) {
+				TROUVE_allowed.set(false);
+				jobs.put(new Job(Job.JobType.RFIN, new String[0]));
+				jobs.put(new Job(Job.JobType.BILANMOTS, new String[0]));
 			}
+			TimeUnit.SECONDS.sleep(bilanTime);			
 		}
 
-		//TODO ajouter comme plus urgent
-		jobs.put(new Job(Job.JobType.VAINQUEUR, new String[0]));
+		// terminer les threads
+		jobs.putFirst(new Job(Job.JobType.VAINQUEUR, new String[0]));
+		worker_thread.join();
 
-		//TODO attendre la fin de Worker (arrêté par VAINQUEUR
-		//TODO arrêter le thread Accepter
-		
-		//TODO et Player on les arrête quand ?
-		
 		listener.close();
+		accepter_thread.join();		
 	}	
 }
