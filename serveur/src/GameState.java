@@ -9,9 +9,10 @@ public class GameState {
 	private ArrayList<Grid> grids = new ArrayList<>();
 	private Scoring scoring;
 	private Map<String, Boolean> sync = new HashMap<String, Boolean>(); //TODO c quoi ce truc ?
+	private boolean immediat;
 	//TODO il manque des verrous pour les accès concurents ??
 	
-	public GameState(ArrayList<String> givenGrids, int turns) throws IOException {
+	public GameState(ArrayList<String> givenGrids, int turns, boolean immediat) throws IOException {
 		for (String grid : givenGrids)
 			grids.add(new Grid (grid));
 		
@@ -21,6 +22,7 @@ public class GameState {
 		}
 		
 		scoring = new Scoring("dico.txt");
+		this.immediat = immediat; //TODO prendre en compte cette option
 	}
 
 	//TODO améliorer les noms

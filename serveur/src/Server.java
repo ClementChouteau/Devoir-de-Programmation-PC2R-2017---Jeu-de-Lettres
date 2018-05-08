@@ -14,16 +14,13 @@ public class Server {
 	private static int port = 2018;
 	private static String hostname = null;
 	private static GameState game;
-
-	// 1 thread qui accepte les connexions
-	// 1 thread main qui gère les timers ??
-	// n threads pour les clients (pool de thread !!) qui récupère les entrées et fais qq sorties faciles
-	// 1 thread qui récupère les requêtes des thread clients et fais les envois (notamment les brodcast)
-	
+	private static int turnTime = 3*60;
+	private static int bilanTime = 10;
 	
 	public static void main(String[] args) throws UnknownHostException, IOException {
 		int turns = 1;
 		ArrayList<String> givenGrids = new ArrayList<>();
+		boolean immediat = false;
 		
 		// parser les arguments de la ligne de commande
 		for (int i = 0; i < args.length; i++) {
@@ -42,11 +39,16 @@ public class Server {
 				}
 			}
 			
-			//TODO récupérer en options des timers pour le temps de recherche / temps bilan du tour
+			if (args[i].compareToIgnoreCase("-immediat") == 0)
+				immediat = true;
 			
-			//TODO ajouter option -immediat pour les mots en double interdits
-			
-			game = new GameState(givenGrids, turns);
+			if (args[i].compareToIgnoreCase("-turnTime") == 0 && i+1 < args.length)
+				turnTime = Integer.parseInt(args[++i]);
+
+			if (args[i].compareToIgnoreCase("-bilanTime") == 0 && i+1 < args.length)
+				bilanTime = Integer.parseInt(args[++i]);
+
+			game = new GameState(givenGrids, turns, immediat);
 		}
 		
 		ServerSocket listener = new ServerSocket(port, 0, InetAddress.getByName(hostname)); //TODO vérifier hostname
@@ -56,10 +58,22 @@ public class Server {
 		Thread accepter_thread = new Thread(accepter);		
 		Thread worker_thread = new Thread(new Worker(game, accepted, jobs));
 
-		//TODO si port==0 alors afficher le port choisi
+		// afficher les valeurs des options par défaut		
+		if (port == 2018)
+			System.out.println("Default port: 2018");
+		else if (port == 0) {
+			System.out.print("Automatically assigned port: ");
+			System.out.println(listener.getLocalPort());
+		}
 		
-		//TODO si un paramètre par défaut est utilisé alors l'afficher
+		if (hostname == null)
+			System.out.println("Default host name");
 		
+		if (turnTime == 3*60)
+			System.out.println("Turn time default value: 3 min");
+		if (bilanTime == 10)
+			System.out.println("Bilan time default value: 10 s");
+				
 		accepter_thread.start();
 
 		for (int t = 0; t < turns; t++) {
@@ -69,26 +83,29 @@ public class Server {
 			jobs.put(new Job(Job.JobType.TOUR, new String[0]));
 			
 			// Phase de recherche
-			TimeUnit.SECONDS.sleep(3*60);
+			TimeUnit.SECONDS.sleep(turnTime);
 
 			jobs.put(new Job(Job.JobType.RFIN, new String[0]));
 			
-			
-			// Phase de vérification
-			// Phase de résultat
+			// Phase de vérification et de résultat
 			synchronized (game) {
-				jobs.put(new Job(Job.JobType.BILANMOTS, new String[0]));
-				
+				//TODO attention à ces 2 lignes !!!!
+				//TODO mettre un job changement de tour ????
+				jobs.put(new Job(Job.JobType.BILANMOTS, new String[0]));				
 				game.nextTurn();
 
-				TimeUnit.SECONDS.sleep(10);
+				TimeUnit.SECONDS.sleep(bilanTime);
 			}
 		}
 
+		//TODO ajouter comme plus urgent
 		jobs.put(new Job(Job.JobType.VAINQUEUR, new String[0]));
 
+		//TODO attendre la fin de Worker (arrêté par VAINQUEUR
+		//TODO arrêter le thread Accepter
 		
-		//TODO stopper les threads proprement
+		//TODO et Player on les arrête quand ?
+		
 		listener.close();
 	}	
 }

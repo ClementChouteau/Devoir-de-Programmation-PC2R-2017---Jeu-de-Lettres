@@ -20,6 +20,8 @@ public class Accepter implements Runnable {
 	
 	@Override
 	public void run() {
+		//TODO permettre à ce thread de s'arrêter proprement
+		
 		while (true) {
 			try {
 				Socket socket = listener.accept();

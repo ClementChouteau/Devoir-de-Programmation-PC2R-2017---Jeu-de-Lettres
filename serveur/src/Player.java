@@ -32,9 +32,7 @@ public class Player implements Runnable {
 			try {
 				String line = in.readLine();
 				String[] args = Parser.parse(line);
-				
-				//TODO >= 2 ou bien == 2 ??
-				
+								
 				// (C -> S) Nouvelle connexion d’un client nomme ’user’
 				if (args.length >= 2 && args[0].equals("CONNEXION")) {
 					user = args[1];
@@ -57,6 +55,9 @@ public class Player implements Runnable {
 				
 				else if (args.length >= 3 && args[0].equals("PENVOI")) {
 					jobs.put(new Job (Job.JobType.PENVOI, args));
+				}
+				else {
+					System.out.println("Unrecognized message HEADER");
 				}
 				
 				//TODO mettre en place une map MESSAGEHEADER/ -> méthode à appeler
