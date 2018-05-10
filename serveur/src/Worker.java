@@ -30,6 +30,10 @@ public class Worker implements Runnable {
 					String user = job.args[1];
 					
 					synchronized (accepted) {
+						try {
+							job.player.socket.close();
+						} catch (IOException e) {
+						}
 						accepted.remove(job.player);
 					}
 					broadcast ("DECONNEXION/" + user + "/");

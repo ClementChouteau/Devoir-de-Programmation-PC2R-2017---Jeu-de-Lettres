@@ -78,7 +78,19 @@ public class Player implements Runnable {
 				}
 				
 			} catch (Exception e) {
-				break; // arrêter le thread
+				if (user != null) {
+					synchronized (this) {
+						if (user != "") {
+							user = "";
+							String[] args = {"SORT", user} ;
+							try {
+								jobs.put(new Job (Job.JobType.SORT, args, this));
+							} catch (InterruptedException e1) {
+							}
+						}
+					}					
+				}
+				return;
 			}
 		}
 	}																																				
