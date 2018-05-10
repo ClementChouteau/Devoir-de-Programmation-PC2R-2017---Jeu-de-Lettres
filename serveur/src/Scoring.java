@@ -110,8 +110,9 @@ public class Scoring {
 			
 			sw.write(user);
 			for (String word : words) {
-				sw.write(word);
 				sw.write('*');
+				sw.write(word);
+		
 			}
 			
 			sw.write(','); //TODO virgule en trop à la fin
@@ -127,10 +128,11 @@ public class Scoring {
 		for (Map.Entry<String, Integer> entry : scores.entrySet()) {
 			sw.write('*');
 			sw.write(entry.getKey());
-			sw.write('*');
+			sw.write(':');
 			
 			Integer prev = prevScores.get(entry.getKey());
-			sw.write((prev != null) ? (prev - entry.getValue()) : entry.getValue());
+			Integer score = (prev != null) ? (prev - entry.getValue()) : entry.getValue();
+			sw.write(score.toString());
 		}
 		
 		return sw.toString();
