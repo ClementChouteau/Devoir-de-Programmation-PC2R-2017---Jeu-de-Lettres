@@ -36,11 +36,15 @@ func stdinToChan(in chan string) {
 
 func receiver(wg *sync.WaitGroup, rfin chan<- struct{}, gridsCh chan<- string, conn net.Conn) {
 	defer wg.Done()
+	defer close(gridsCh)
 
 	buffer := make([]byte, 1024)
 
 	for {
-		n, _ := conn.Read(buffer)
+		n, err := conn.Read(buffer)
+		if err != nil {
+			return
+		}
 		line := string(buffer[:n])
 
 		args := strings.Split(line, "/")
@@ -66,6 +70,7 @@ func receiver(wg *sync.WaitGroup, rfin chan<- struct{}, gridsCh chan<- string, c
 			case "VAINQUEUR": // VAINQUEUR/bilan/
 				if len(args) >= 2 {
 					printVainqueur(args[1])
+					return
 				}
 				return
 			case "TOUR": // TOUR/tirage/
@@ -171,13 +176,13 @@ ROUND:
 						return
 					case "msg":
 						if len(args) >= 2 {
-							message := args[1]
+							message := strings.Join(args[1:], " ")
 							conn.Write([]byte("ENVOI/" + message + "/" + "\n"))
 						}
 					case "pmsg":
 						if len(args) >= 3 {
 							toUser := args[1]
-							message := args[2]
+							message := strings.Join(args[2:], " ")
 							conn.Write([]byte("PENVOI/" + toUser + "/" + message + "/" + "\n"))
 						}
 					default:
