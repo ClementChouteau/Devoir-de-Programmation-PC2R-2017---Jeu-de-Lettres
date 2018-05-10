@@ -7,7 +7,7 @@ public class GameState {
 	private Scoring scoring;
 	private boolean immediat;
 	
-	public GameState(ArrayList<String> givenGrids, int turns, boolean immediat) throws IOException {
+	 public GameState(ArrayList<String> givenGrids, int turns, boolean immediat) throws IOException {
 		for (String grid : givenGrids)
 			grids.add(new Grid (grid));
 		
@@ -19,6 +19,10 @@ public class GameState {
 		scoring = new Scoring("dico.txt", immediat);
 		this.immediat = immediat;
 	}
+	 
+	 public void initializePlayer( String user ) {
+		 scoring.initializePlayer(user);
+	 }
 	
 	public Grid turnGrid() {
 		return grids.get(turn);
@@ -33,6 +37,7 @@ public class GameState {
 	
 	// retourne null en cas de mot valide et accepté, retourne la raison sinon
 	public String giveTrajectory(String user, String trajectory) {
+		System.out.println("game.giveTrajectory");
 		return scoring.giveTrajectory(turnGrid(), user, trajectory);
 	}
 

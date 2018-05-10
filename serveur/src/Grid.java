@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Grid {
-	private String grid;
+	public String grid;
 	private ArrayList<Boolean> isUsed ;
 	
 	Grid (String grid) {
@@ -12,10 +12,11 @@ public class Grid {
 
 	public static ArrayList<Integer> trajectoryOfString(String trajectory) {
 		ArrayList<Integer> t = new ArrayList<>();
-		for (int i = 0; 2*i+1 < trajectory.length(); i+=2) {
+		for (int i = 0; i+1 < trajectory.length(); i+=2) {
 
 			int y = 0;
-			switch (trajectory.charAt(2*i)) {
+			System.out.println(trajectory);
+			switch (trajectory.charAt(i)) {
 			case 'A': y = 0; break;
 			case 'B': y = 1; break;
 			case 'C': y = 2; break;
@@ -24,7 +25,7 @@ public class Grid {
 			}
 
 			int x = 0;
-			switch (trajectory.charAt(2*i+1)) {
+			switch (trajectory.charAt(i+1)) {
 			case '1': x = 0; break;
 			case '2': x = 1; break;
 			case '3': x = 2; break;
@@ -39,12 +40,13 @@ public class Grid {
 	}
 	
 	private boolean checkTrajectory (ArrayList<Integer> t) {
+		System.out.println(t.toString());
 		ArrayList<Boolean> path = new ArrayList<Boolean>(Collections.nCopies(grid.length(), false));
 		Integer prev = null;
 		for (Integer i : t ) {
-			if (path.get(i))
+			if (path.get(i)) {
 				return false;
-			
+			}
 			path.set(i, true);
 
 			// on vérifie que i et son précédent sont adjacents
@@ -54,7 +56,7 @@ public class Grid {
 						|| i == prev-4 || i == prev+4
 						|| i == prev-3 || i == prev+3
 						|| i == prev-5 || i == prev+5)
-					)
+					) 
 					return false;
 			}
 			
@@ -83,9 +85,9 @@ public class Grid {
 		if (!checkTrajectory(t))
 			return null;
 
-		char[] word = new char[trajectory.length()/2];
-		for (int i = 0; 2*i+1 < trajectory.length(); i+=2)
-			word[i] = grid.charAt(t.get(i));	
+		char[] word = new char[t.size()];
+		for (int i = 0; i < t.size(); i++)
+			word[i] = grid.charAt(t.get(i));
 		
 		return new String (word);
 	}

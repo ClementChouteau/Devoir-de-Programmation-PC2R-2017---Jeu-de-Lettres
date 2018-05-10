@@ -42,8 +42,9 @@ public class Dices {
 		char[] grid = new char [dices.length];
 		ArrayList<Integer> permutation = randomPermutation(dices.length);
 		
-		for (int i = 0; i < dices.length; i++) {
-		      int j = randomGenerator.nextInt(100);
+		for (int i = 0; i < dices.length; i++) {			
+		      int j = randomGenerator.nextInt(dices[0].length);
+
 		      grid[i] = dices[permutation.get(i)][j];
 		}
 

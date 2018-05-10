@@ -35,13 +35,13 @@ public class Player implements Runnable {
 			try {
 				String line = in.readLine();
 				String[] args = Parser.parse(line);
-	
+				System.out.println(line);
 				// (C -> S) Nouvelle connexion d’un client nomme ’user’
 				if (args.length >= 2 && args[0].equals("CONNEXION")) {
 					user = args[1];
-					jobs.put(new Job (Job.JobType.CONNEXION, args));
+					jobs.put(new Job (Job.JobType.CONNEXION, args, this));
 				}
-				else if (user != null) {
+				else if (user != null) {					
 					// (C -> S) Déconnexion de ’user’.
 					if (args.length >= 2 && args[0].equals("SORT")) {
 						synchronized (this) {
@@ -55,22 +55,22 @@ public class Player implements Runnable {
 					// (C -> S) Annonce d’un mot et de sa trajectoire par un joueur.
 					else if (args.length >= 3 && args[0].equals("TROUVE")) {
 						synchronized (jobs) {
-							if (TROUVE_allowed.get())
+							if (!TROUVE_allowed.get())
 								continue;
 						
 							args[1] = args[1].toUpperCase();
 							args[2] = args[2].toUpperCase();
-							jobs.put(new Job (Job.JobType.TROUVE, args));
+							jobs.put(new Job (Job.JobType.TROUVE, args,this));
 						}
 					}
 					// (C -> S) Envoi (public) d’une chaine de caractere "message" à tous les joueurs.
 					else if (args.length >= 2 && args[0].equals("ENVOI")) {
-						jobs.put(new Job (Job.JobType.ENVOI, args));					
+						jobs.put(new Job (Job.JobType.ENVOI, args, this));					
 					}
 					
 					// (C -> S) Envoi (privé) d’une chaine de caractere "message" au joueur "user" uniquement.
 					else if (args.length >= 3 && args[0].equals("PENVOI")) {
-						jobs.put(new Job (Job.JobType.PENVOI, args));
+						jobs.put(new Job (Job.JobType.PENVOI, args, this));
 					}
 					else {
 						System.out.println("Unrecognized message HEADER");

@@ -39,6 +39,7 @@ public class Server {
 				while (++i < args.length && args[i].charAt(0) != '-') {
 					givenGrids.add(args[i]);
 				}
+				i--;
 			}
 			
 			if (args[i].compareToIgnoreCase("-immediat") == 0)
@@ -50,16 +51,21 @@ public class Server {
 			if (args[i].compareToIgnoreCase("-bilanTime") == 0 && i+1 < args.length)
 				bilanTime = Integer.parseInt(args[++i]);
 
-			game = new GameState(givenGrids, turns, immediat);
 		}
+		game = new GameState(givenGrids, turns, immediat);
 		
 		ServerSocket listener = new ServerSocket(port, 0, InetAddress.getByName(hostname));
 		List<Player> accepted = new LinkedList<>();
 		BlockingDeque<Job> jobs = new LinkedBlockingDeque<Job>();
 		AtomicBoolean TROUVE_allowed = new AtomicBoolean(false);
 		Accepter accepter = new Accepter(listener, accepted, jobs, TROUVE_allowed);
+		Worker worker = new Worker(game, accepted, jobs);
+		
 		Thread accepter_thread = new Thread(accepter);		
-		Thread worker_thread = new Thread(new Worker(game, accepted, jobs));
+		accepter_thread.start();
+		
+		Thread worker_thread = new Thread(worker);
+		worker_thread.start();
 
 		// afficher les valeurs des options par défaut		
 		if (port == 2018)
@@ -70,15 +76,15 @@ public class Server {
 		}
 		
 		if (hostname == null)
-			System.out.println("Default host name");
+			System.out.println("Default host name: " + listener.getInetAddress().getHostAddress());
 		
 		if (turnTime == 3*60)
 			System.out.println("Turn time default value: 3 min");
 		if (bilanTime == 10)
 			System.out.println("Bilan time default value: 10 s");
-
-		accepter_thread.start();
-
+		
+		
+		
 		jobs.put(new Job(Job.JobType.SESSION, new String[0]));
 		
 		for (int t = 0; t < turns; t++) {			

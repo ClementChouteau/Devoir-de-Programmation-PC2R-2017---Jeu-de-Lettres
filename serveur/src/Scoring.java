@@ -3,10 +3,8 @@ import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +24,7 @@ public class Scoring {
 		}
 	}
 	
-	// retourne null si le mot et valide, et la raison sinon
+	// retourne null si le mot est valide, la raison sinon
 	private String isValid(Grid grid, String trajectory) {
 		String word = grid.wordOfTrajectory (trajectory);
 		
@@ -45,6 +43,11 @@ public class Scoring {
 
 		return null;
 	}
+	 public void initializePlayer( String user ) {
+		 if (scores.get(user) == null)
+			 scores.put(user, 0);			 
+	 }
+	
 
 	// doit être appelé après isValid()
 	public String giveTrajectory(Grid grid, String user, String trajectory) {
@@ -73,13 +76,14 @@ public class Scoring {
 
 	public String scores() {
 		StringWriter sw = new StringWriter();
+		sw.write(new Integer (scores.size()).toString());
 
-		sw.write(scores.size());
 		for (Map.Entry<String, Integer> entry : scores.entrySet()) {
 			sw.write('*');
 			sw.write(entry.getKey());
 			sw.write('*');
-			sw.write(entry.getValue());
+			String score = entry.getValue().toString();
+			sw.write(score);
 		}
 
 		return sw.toString();

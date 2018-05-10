@@ -24,10 +24,11 @@ public class Worker implements Runnable {
 			try {
 				Job job = jobs.take();
 				
+				System.out.println(job.type);
 				switch (job.type) {
 				case SORT:
 				{
-					String user = job.args[0];
+					String user = job.args[1];
 					
 					synchronized (accepted) {
 						accepted.remove(job.player);
@@ -38,40 +39,50 @@ public class Worker implements Runnable {
 				
 				case CONNEXION:
 				{
+					
 					String user = job.args[1];
-					job.player.out.print("BIENVENUE/" + game.turnGrid() + "/" + game.scores()  + "/\n");
+					game.initializePlayer(user);
+					
+					job.player.out.print("BIENVENUE/" + game.turnGrid().grid +  "/" + game.scores()  + "/\n");
 					job.player.out.flush();
 					broadcast_if("CONNECTE/" + user + "/", player -> player.user != job.player.user); 
 					break;
 				}
 				case TROUVE:
 				{	
+					
 					String word = job.args[1];
 					String trajectory = job.args[2];
-
-					String reason = game.giveTrajectory(job.player.user, trajectory);
-
+										
+					String reason;
+					String wordl = game.turnGrid().wordOfTrajectory(trajectory);
+					System.out.println(wordl);
 					if(!word.equals(game.turnGrid().wordOfTrajectory(trajectory)))
 						reason = "POS/word doesn't match trajectory";
-
-					if (reason == null)
-						job.player.out.print("MVALIDE/" + word + "/\n");
-						
 					else
-						job.player.out.print("MINVALIDE/" + reason + "/\n");						
+						reason = game.giveTrajectory(job.player.user, trajectory);
+					
+					if (reason == null) {
+						job.player.out.print("MVALIDE/" + word + "/\n");
+						job.player.out.flush();
+					}
+					else {
+						job.player.out.print("MINVALIDE/" + reason + "/\n");
+					    job.player.out.flush();
+					}
 					break;
 				}
 				case ENVOI:
 				{
 					String msg = job.args [1];
-					broadcast_if("RECEPTION/" + msg + "/", player -> player.user != job.player.user); 
+					broadcast_if("RECEPTION/" + msg + "/", player -> ! player.user.equals ( job.player.user)); 
 					break;
 				}
 				case PENVOI:
 				{	
 					String user = job.args[1];
 					String msg = job.args[2];
-					broadcast_if("PRECEPTION/" + msg + "/" + job.player.user + "/", player -> player.user == user); 
+					broadcast_if("PRECEPTION/" + msg + "/" + job.player.user + "/", player -> player.user .equals (user)); 
 					break;
 				}
 				case SESSION:
@@ -119,7 +130,7 @@ public class Worker implements Runnable {
 				if (condition.test(player)) {
 
 					synchronized (player) {
-						if (!player.user.equals("")) {
+						if (! player.user.equals("")) {
 							try {
 								PrintWriter out = player.out;
 								out.println(msg);
