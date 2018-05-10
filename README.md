@@ -101,7 +101,4 @@ Dans les mécanismes de jeu nous considérons la notion de *trajectoire*, on a i
 ## Utilisation du client (Go)
 
 ## Présentation du client (Go)
-<<<<<<< HEAD
 
-=======
->>>>>>> 7a5ceed47b5e53da44490c16941f96dc2a60c3a9

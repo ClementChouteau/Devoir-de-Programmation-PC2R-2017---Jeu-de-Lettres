@@ -37,7 +37,6 @@ public class GameState {
 	
 	// retourne null en cas de mot valide et accepté, retourne la raison sinon
 	public String giveTrajectory(String user, String trajectory) {
-		System.out.println("game.giveTrajectory");
 		return scoring.giveTrajectory(turnGrid(), user, trajectory);
 	}
 
@@ -50,6 +49,6 @@ public class GameState {
 	}
 	
 	public String turnScores() {
-		return turn + '*' + scoring.turnScores();
+		return turn + scoring.turnScores();
 	}
 }
