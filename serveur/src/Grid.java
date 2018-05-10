@@ -40,7 +40,6 @@ public class Grid {
 	}
 	
 	private boolean checkTrajectory (ArrayList<Integer> t) {
-		System.out.println(t.toString());
 		ArrayList<Boolean> path = new ArrayList<Boolean>(Collections.nCopies(grid.length(), false));
 		Integer prev = null;
 		for (Integer i : t ) {

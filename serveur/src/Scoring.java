@@ -124,11 +124,10 @@ public class Scoring {
 	public String turnScores() {
 		StringWriter sw = new StringWriter();
 				
-		sw.write(scores.size());
 		for (Map.Entry<String, Integer> entry : scores.entrySet()) {
 			sw.write('*');
 			sw.write(entry.getKey());
-			sw.write(':');
+			sw.write('*');
 			
 			Integer prev = prevScores.get(entry.getKey());
 			Integer score = (prev != null) ? (prev - entry.getValue()) : entry.getValue();

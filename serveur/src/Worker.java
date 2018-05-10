@@ -55,8 +55,6 @@ public class Worker implements Runnable {
 					String trajectory = job.args[2];
 										
 					String reason;
-					String wordl = game.turnGrid().wordOfTrajectory(trajectory);
-					System.out.println(wordl);
 					if(!word.equals(game.turnGrid().wordOfTrajectory(trajectory)))
 						reason = "POS/word doesn't match trajectory";
 					else

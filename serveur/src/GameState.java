@@ -50,6 +50,6 @@ public class GameState {
 	}
 	
 	public String turnScores() {
-		return turn + '*' + scoring.turnScores();
+		return turn + scoring.turnScores();
 	}
 }
