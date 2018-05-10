@@ -15,7 +15,6 @@ public class Grid {
 		for (int i = 0; i+1 < trajectory.length(); i+=2) {
 
 			int y = 0;
-			System.out.println(trajectory);
 			switch (trajectory.charAt(i)) {
 			case 'A': y = 0; break;
 			case 'B': y = 1; break;
@@ -40,7 +39,6 @@ public class Grid {
 	}
 	
 	private boolean checkTrajectory (ArrayList<Integer> t) {
-		System.out.println(t.toString());
 		ArrayList<Boolean> path = new ArrayList<Boolean>(Collections.nCopies(grid.length(), false));
 		Integer prev = null;
 		for (Integer i : t ) {

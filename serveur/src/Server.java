@@ -83,8 +83,6 @@ public class Server {
 		if (bilanTime == 10)
 			System.out.println("Bilan time default value: 10 s");
 		
-		
-		
 		jobs.put(new Job(Job.JobType.SESSION, new String[0]));
 		
 		for (int t = 0; t < turns; t++) {			

@@ -24,7 +24,6 @@ public class Worker implements Runnable {
 			try {
 				Job job = jobs.take();
 				
-				System.out.println(job.type);
 				switch (job.type) {
 				case SORT:
 				{
@@ -56,7 +55,7 @@ public class Worker implements Runnable {
 										
 					String reason;
 					String wordl = game.turnGrid().wordOfTrajectory(trajectory);
-					System.out.println(wordl);
+
 					if(!word.equals(game.turnGrid().wordOfTrajectory(trajectory)))
 						reason = "POS/word doesn't match trajectory";
 					else
@@ -109,7 +108,7 @@ public class Worker implements Runnable {
 				case VAINQUEUR:
 				{
 					broadcast("VAINQUEUR/" + game.scores() + "/");
-					break;
+					return;
 				}
 				}
 			}

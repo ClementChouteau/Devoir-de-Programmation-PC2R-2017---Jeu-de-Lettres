@@ -34,8 +34,8 @@ public class Player implements Runnable {
 		while (true) {
 			try {
 				String line = in.readLine();
-				String[] args = Parser.parse(line);
 				System.out.println(line);
+				String[] args = Parser.parse(line);
 				// (C -> S) Nouvelle connexion d’un client nomme ’user’
 				if (args.length >= 2 && args[0].equals("CONNEXION")) {
 					user = args[1];
