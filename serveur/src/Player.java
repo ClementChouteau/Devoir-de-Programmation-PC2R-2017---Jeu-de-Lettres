@@ -47,10 +47,11 @@ public class Player implements Runnable {
 						synchronized (this) {
 							if (user != "") {
 								user = "";
+								socket.close();
 								jobs.put(new Job (Job.JobType.SORT, args, this));								
 							}
 						}
-						break; // terminer le thread
+						return; // terminer le thread
 					}
 					// (C -> S) Annonce d’un mot et de sa trajectoire par un joueur.
 					else if (args.length >= 3 && args[0].equals("TROUVE")) {
@@ -76,7 +77,7 @@ public class Player implements Runnable {
 						System.out.println("Unrecognized message HEADER");
 					}
 				}
-				
+
 			} catch (Exception e) {
 				if (user != null) {
 					synchronized (this) {

@@ -141,7 +141,7 @@ public class Worker implements Runnable {
 									player.socket.close();
 								} catch (IOException e1) {
 								}
-								jobs.put(new Job (Job.JobType.SORT, new String[]{player.user}, player));
+								jobs.put(new Job (Job.JobType.SORT, new String[]{new String(player.user)}, player));
 								it.remove();
 							}							
 						}

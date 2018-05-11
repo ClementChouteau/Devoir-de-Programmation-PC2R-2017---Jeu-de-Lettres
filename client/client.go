@@ -18,12 +18,12 @@ func printGrid(grid string) {
 
 func printBilan(motsProposes string, scores string) {
 	// afficher : score : user : mot1, mot2.....
-	fmt.Println("Words : " + motsProposes) // PAS FINI ICI
-	fmt.Println("Scores : " + scores)      // PAS FINI ICI
+	fmt.Println("Words : " + motsProposes)
+	fmt.Println("Scores : " + scores)
 }
 
 func printVainqueur(vainqueur string) {
-	fmt.Println("Vainqueur : " + vainqueur) // PAS FINI ICI
+	fmt.Println("Vainqueur : " + vainqueur)
 }
 
 func stdinToChan(in chan string) {
@@ -84,9 +84,9 @@ func receiver(wg *sync.WaitGroup, rfin chan<- struct{}, gridsCh chan<- string, c
 				}
 			case "MINVALIDE": // MINVALIDE/raison/
 				if len(args) >= 2 {
-					fmt.Println("Invalid word (reason : " + args[1] + ").")
+					fmt.Println("Invalid word, reason : " + strings.Join(args[1:], "/"))
 				}
-			case "RFIN":
+			case "RFIN": // RFIN/
 				fmt.Println("End of round.")
 				rfin <- struct{}{}
 
